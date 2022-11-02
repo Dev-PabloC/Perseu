@@ -1,0 +1,11 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "email": "pablo.dev.carvalho@gmail.com",
+    "name": "Dev-PabloC",
+    "url": "https://github.com/Dev-PabloC"
+  }
+}
