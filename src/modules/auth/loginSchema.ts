@@ -11,9 +11,6 @@ export class Login {
 
 @ObjectType()
 export class TokenLogin {
-	@Field(() => Login, { nullable: true })
-	login: Login;
-
 	@Field({ nullable: true })
 	token: string;
 }

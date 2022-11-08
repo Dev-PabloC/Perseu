@@ -3,7 +3,7 @@ import { Request } from "express";
 import { Resolver, Field, Arg, Mutation, InputType, Query, Ctx, createMethodDecorator } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
 import { Post } from "./PostSchema";
-import { verify } from "jsonwebtoken";
+import { getDataTokenPromise } from "../../utils/decodedPromise";
 
 @InputType()
 class PostInput {
@@ -35,20 +35,18 @@ export class PostResolver {
 	}
 
 	@Mutation(() => Post)
-	async createPost(@Arg("createPost") postInput: PostInput, @Ctx("req") req: Request) {
-		const authToken = req.headers.authorization;
-		const token = authToken?.slice(7);
+	async createPost(@Arg("createPost") postInput: PostInput, @Ctx("req") req: Request): Promise<string | null> {
+		const token = req.headers["authorization"]?.slice(7);
 
 		if (!token) {
 			return "No authorized";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
-		const result = await prisma.user.update({
+		await prisma.user.update({
 			where: { id: userId },
 			data: {
 				posts: {
@@ -60,38 +58,40 @@ export class PostResolver {
 			},
 		});
 
-		return result;
+		return "Post created";
 	}
 
 	@Mutation(() => Post)
-	async updatePost(@Arg("updatePost") postInput: PostInput, @Ctx() req: Request, @Arg("id") id: string) {
-		const authToken = req.headers.authorization;
-		const token = authToken?.slice(7);
+	async updatePost(
+		@Arg("updatePost") postInput: PostInput,
+		@Ctx() req: Request,
+		@Arg("id") id: string,
+	): Promise<string | void> {
+		const token = req.headers["authorization"]?.slice(7);
 
 		if (!token) {
 			return "No authorized";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		const result = await prisma.post.findFirst({ where: { userId: userId } });
 
 		if (result?.title === postInput.title) {
-			const result = await prisma.post.update({
+			await prisma.post.update({
 				where: {
 					id: id,
 				},
 				data: { ...postInput },
 			});
 
-			return result;
+			return "User updated";
 		}
 	}
 	@Mutation(() => Post)
-	async deletePost(@Arg("id") id: string, @Ctx() req: Request) {
+	async deletePost(@Arg("id") id: string, @Ctx() req: Request): Promise<string | void> {
 		const authToken = req.headers.authorization;
 		const token = authToken?.slice(7);
 
@@ -99,9 +99,8 @@ export class PostResolver {
 			return "No authorized";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		const result = await prisma.post.findFirst({ where: { id: id } });
@@ -111,7 +110,8 @@ export class PostResolver {
 		}
 
 		if (result?.userId === userId) {
-			return prisma.post.delete({ where: { id: id } });
+			await prisma.post.delete({ where: { id: id } });
+			return "User deleted";
 		}
 	}
 }

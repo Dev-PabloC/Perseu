@@ -3,14 +3,14 @@ import { Request } from "express";
 import { Resolver, Field, Arg, Mutation, InputType, Query, Ctx } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
 import { Info } from "./infoSchema";
-import { verify } from "jsonwebtoken";
+import { getDataTokenPromise } from "../../utils/decodedPromise";
 
 @InputType()
 class InfoInput {
-	@Field({ nullable: true })
+	@Field()
 	age: string;
 
-	@Field({ nullable: true })
+	@Field()
 	about: string;
 }
 
@@ -18,16 +18,14 @@ class InfoInput {
 export class InfoResolver {
 	@Query(() => Info)
 	async getInfo(@Ctx("req") req: Request) {
-		const authToken = req.headers.authorization;
-		const token = authToken?.slice(7);
+		const token = req.headers["authorization"]?.slice(7);
 
 		if (!token) {
 			return "No authorized";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		return prisma.info.findFirst({ where: { userId: userId } });
@@ -35,16 +33,14 @@ export class InfoResolver {
 
 	@Mutation(() => Info)
 	async createInfo(@Arg("infoInput") infoInput: InfoInput, @Ctx("req") req: Request) {
-		const authToken = req.headers.authorization;
-		const token = authToken?.slice(7);
+		const token = req.headers["authorization"]?.slice(7);
 
 		if (!token) {
-			return "No authorized";
+			return "acess denied, no token";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		const result = await prisma.user.findFirst({ where: { id: userId } });
@@ -58,6 +54,7 @@ export class InfoResolver {
 					},
 				},
 			});
+			
 		}
 	}
 
@@ -67,12 +64,11 @@ export class InfoResolver {
 		const token = authToken?.slice(7);
 
 		if (!token) {
-			return "No authorized";
+			return "acess denied, no token";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		const result = await prisma.user.findFirst({ where: { id: userId } });
@@ -90,16 +86,14 @@ export class InfoResolver {
 		if (!id) {
 			return "Send a ID";
 		}
-		const authToken = req.headers.authorization;
-		const token = authToken?.slice(7);
+		const token = req.headers["authorization"]?.slice(7);
 
 		if (!token) {
-			return "No authorized";
+			return "acess denied, no token";
 		}
 
-		const { userId, email } = verify(String(token), String(process.env.JWTKEY)) as {
+		const { userId } = (await getDataTokenPromise(String(token))) as {
 			userId: string;
-			email: string;
 		};
 
 		const result = await prisma.user.findFirst({ where: { id: userId } });
