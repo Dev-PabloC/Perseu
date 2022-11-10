@@ -1,38 +1,14 @@
 import "reflect-metadata";
 import { Request } from "express";
-import { Resolver, Field, Arg, Mutation, InputType, Query, Ctx } from "type-graphql";
+import { Resolver, Arg, Mutation, Query, Ctx } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
-import { User, UserCreate } from "./UserSchema";
+import { User, UserCreate, UserInput, UpdateUserInput } from "../entities/UserSchema";
 import { getDataTokenPromise } from "../../utils/decodedPromise";
-
-@InputType()
-class UserInput {
-	@Field()
-	username: string;
-
-	@Field()
-	email: string;
-
-	@Field()
-	password: string;
-}
-
-@InputType()
-class UpdateUserInput {
-	@Field({ nullable: true })
-	username?: string;
-
-	@Field({ nullable: true })
-	email?: string;
-
-	@Field({ nullable: true })
-	password?: string;
-}
 
 @Resolver(() => User)
 class UserResolver {
 	@Query(() => [User])
-	async getAllUsers() {
+	async getUsers() {
 		const result = await prisma.user.findMany({
 			select: {
 				email: true,
@@ -62,14 +38,12 @@ class UserResolver {
 	}
 
 	@Mutation(() => UserCreate)
-	async createUser(@Arg("createUser") userInput: UserInput): Promise<string | null> {
-		await prisma.user.create({
+	async createUser(@Arg("createUser") userInput: UserInput) {
+		return prisma.user.create({
 			data: {
 				...userInput,
 			},
 		});
-
-		return "User created";
 	}
 
 	@Mutation(() => User)

@@ -1,18 +1,8 @@
 import "reflect-metadata";
-import { Request } from "express";
-import { Resolver, Field, Arg, Mutation, InputType, Query } from "type-graphql";
+import { Resolver, Arg, Mutation } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
 import * as jwt from "jsonwebtoken";
-import { Login, TokenLogin } from "./loginSchema";
-
-@InputType()
-class LoginInput {
-	@Field()
-	email: string;
-
-	@Field()
-	password: string;
-}
+import { Login, TokenLogin, LoginInput } from "../entities/loginSchema";
 
 @Resolver()
 export class LoginResolver {
