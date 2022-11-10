@@ -21,8 +21,8 @@ export class PostResolver {
 		return result;
 	}
 	@Query(() => Post)
-	async getUniquePost(@Arg("title") Title: string) {
-		return prisma.post.findFirst({ where: { title: Title } });
+	async getUniquePost(@Arg("id") id: string) {
+		return prisma.post.findFirst({ where: { id: id } });
 	}
 
 	@Mutation(() => Post)

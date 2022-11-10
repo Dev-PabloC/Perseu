@@ -1,7 +1,8 @@
-export function Auth() {
-	return (
-		<>
-			<div>Hello auth</div>
-		</>
-	);
-}
+export default {
+	login: () => {
+		return <></>;
+	},
+	register: () => {
+		return <></>;
+	},
+};

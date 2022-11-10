@@ -25,12 +25,15 @@ class UserResolver {
 	}
 
 	@Query(() => User)
-	async getUniqueUser(@Arg("name") name: string) {
+	async getUniqueUser(@Arg("username") username: string) {
 		const result = prisma.user.findFirst({
-			where: { username: name },
-			include: {
-				info: true,
+			where: { username: username },
+			select: {
+				id: true,
+				username: true,
+				email: true,
 				posts: true,
+				info: true,
 			},
 		});
 
