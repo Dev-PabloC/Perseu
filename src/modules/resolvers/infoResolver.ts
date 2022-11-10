@@ -2,17 +2,8 @@ import "reflect-metadata";
 import { Request } from "express";
 import { Resolver, Field, Arg, Mutation, InputType, Query, Ctx } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
-import { Info } from "./infoSchema";
+import { Info, InfoInput } from "../entities/infoSchema";
 import { getDataTokenPromise } from "../../utils/decodedPromise";
-
-@InputType()
-class InfoInput {
-	@Field()
-	age: string;
-
-	@Field()
-	about: string;
-}
 
 @Resolver()
 export class InfoResolver {
@@ -54,7 +45,6 @@ export class InfoResolver {
 					},
 				},
 			});
-			
 		}
 	}
 

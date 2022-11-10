@@ -1,18 +1,9 @@
 import "reflect-metadata";
 import { Request } from "express";
-import { Resolver, Field, Arg, Mutation, InputType, Query, Ctx, createMethodDecorator } from "type-graphql";
+import { Resolver, Arg, Mutation, Query, Ctx } from "type-graphql";
 import { prisma } from "../../database/prismaConnection";
-import { Post } from "./PostSchema";
+import { Post, PostInput } from "../entities/PostSchema";
 import { getDataTokenPromise } from "../../utils/decodedPromise";
-
-@InputType()
-class PostInput {
-	@Field()
-	title: string;
-
-	@Field()
-	content: string;
-}
 
 @Resolver()
 export class PostResolver {
