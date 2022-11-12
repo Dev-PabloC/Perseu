@@ -2,6 +2,8 @@ import { ObjectType, Field, InputType } from "type-graphql";
 
 @ObjectType()
 export class Info {
+	@Field()
+	id: string;
 	@Field({ nullable: true })
 	age: string;
 
